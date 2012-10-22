@@ -1,6 +1,6 @@
 ﻿package objects;
 
-import monksrevenge.MonksRevengeGame;
+import monksrevenge.FakeGameContainer;
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -8,7 +8,6 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Polygon;
 import org.newdawn.slick.geom.Shape;
-import org.newdawn.slick.geom.ShapeRenderer;
 
 /** Classe dont héritent tous les objets pouvant être représentés en jeu */
 abstract class GameObject {
@@ -45,7 +44,7 @@ abstract class GameObject {
 	private int ySpeedMax;
 
 	/**      * Fichier image représentant l'objet */
-	private Image image;
+	private String image;
 
 	/**      * Objet amical ou non */
 	private boolean friendly;
@@ -70,15 +69,9 @@ abstract class GameObject {
 		return this.friendly;
 	}
 
-
-	/**      * Hauteur de l'objet */
-	public int getHeigth() {
-		return this.image.getHeight();
-	}
-
 	/**      * Getter image */
 	public Image getImage() {
-		return this.image;
+		return GamePackage.getInstance().getResourceLoader().getImage(this.image);
 	}
 
 	/**      * Getter time_before */
@@ -88,7 +81,12 @@ abstract class GameObject {
 
 	/**      * Largeur de l'objet */
 	public int getWidth() {
-		return this.image.getWidth();
+		return (int) (1024*FakeGameContainer.getInstance().getScale());
+	}
+	
+	/** 	* Hauteur de l'objet */
+	public int getHeight(){
+		return (int) (1024*FakeGameContainer.getInstance().getScale());
 	}
 
 	/**      * Getter xAcceleration */
@@ -137,8 +135,8 @@ abstract class GameObject {
 
 	/** Implémentation de render */
 	public void render(GameContainer container, Graphics g) throws SlickException {
-		this.getImage().draw(this.getXPos(), this.getYPos(), MonksRevengeGame.scale);
-		ShapeRenderer.draw(this.getShape());
+		this.getImage().draw(this.getXPos(), this.getYPos(), FakeGameContainer.getInstance().getScale());
+		//ShapeRenderer.draw(this.getShape());
 	}
 
 	/**      * Setter friendly */
@@ -147,7 +145,7 @@ abstract class GameObject {
 	}
 
 	/**      * Setter image */
-	public void setImage(Image img) {
+	public void setImage(String img) {
 		this.image = img;
 	}
 
@@ -162,7 +160,7 @@ abstract class GameObject {
 	}
 
 	/**      * Setter xPos */
-	public void setXPos(int x) {
+	public void setXPos(int x){
 		this.xPos = x;
 	}
 
@@ -197,7 +195,7 @@ abstract class GameObject {
 	}
 
 	/**      * Méthode servant à  mettre à  jour l'objet */
-	public abstract void update(GameContainer container, int delta) throws SlickException;
+	public abstract void update(int delta) throws SlickException;
 
 	/**      * Met à  jour l'attribut xSpeed, xPos et yPos */
 	public void updateLocation(int delta) {
@@ -212,13 +210,13 @@ abstract class GameObject {
 	
 	//Renvoi true si l'enemy est sorti completement de l'écran
 	public boolean isOutOfRender(){
-		return !(this.getXPos() > -this.getImage().getWidth()*MonksRevengeGame.scale && this.getYPos() > -this.getImage().getHeight()*MonksRevengeGame.scale && this.getXPos() + this.getImage().getWidth() * MonksRevengeGame.scale < MonksRevengeGame.appInstance.getWidth()+this.getImage().getWidth() * MonksRevengeGame.scale && this.getYPos() + this.getImage().getHeight() * MonksRevengeGame.scale < MonksRevengeGame.appInstance.getHeight()+this.getImage().getHeight() * MonksRevengeGame.scale);
+		return !(this.getXPos() > -this.getWidth() && this.getYPos() > -this.getHeight() && this.getXPos() + this.getWidth() < FakeGameContainer.getInstance().getWidth()+this.getWidth() && this.getYPos() + this.getHeight() < FakeGameContainer.getInstance().getHeight()+this.getHeight());
 
 	}
 	
 	/* Renvoi True si le gameObject est en dehors de l'écran */
 	public boolean isOutOfScreen(){
-		return !(this.getXPos() > 0 && this.getYPos() > 0 && this.getXPos() + this.getImage().getWidth() * MonksRevengeGame.scale < MonksRevengeGame.appInstance.getWidth() && this.getYPos() + this.getImage().getHeight() * MonksRevengeGame.scale < MonksRevengeGame.appInstance.getHeight());
+		return !(this.getXPos() > 0 && this.getYPos() > 0 && this.getXPos() + this.getWidth() < FakeGameContainer.getInstance().getWidth() && this.getYPos() + this.getHeight() < FakeGameContainer.getInstance().getHeight());
 	}
 	
 	//Direction entre 0 et 7 Correspondant au point cardinaux en partant du nord et dans le sens des aiguilles d'une montre.
@@ -272,24 +270,81 @@ abstract class GameObject {
 		}
 	}
 	
-	protected Shape getShapeByImage(Image img){
+	protected Shape getShapeByImage(String img){
 		Polygon res = new Polygon();
-		if(img != null){
-			switch(img.getResourceReference()){
-				case "img/battleship.png":
-					res.addPoint((img.getWidth()/2)*MonksRevengeGame.scale, 0);
-					res.addPoint((img.getWidth())*MonksRevengeGame.scale, (img.getHeight()/2)*MonksRevengeGame.scale);
-					res.addPoint((img.getWidth()/2)*MonksRevengeGame.scale, (img.getHeight())*MonksRevengeGame.scale);
-					res.addPoint(0,(img.getHeight()/2)*MonksRevengeGame.scale);
-					break;
-				default:
-					res.addPoint(0, 0);
-					res.addPoint(this.getImage().getWidth()*MonksRevengeGame.scale, 0);
-					res.addPoint(this.getImage().getWidth()*MonksRevengeGame.scale, this.getImage().getHeight()*MonksRevengeGame.scale);
-					res.addPoint(0f,this.getImage().getHeight()*MonksRevengeGame.scale);
+		float scale = FakeGameContainer.getInstance().getScale();
+		if(img == null){
+			res.addPoint(0, 0);
+			res.addPoint(0, this.getWidth());
+			res.addPoint(this.getHeight(), this.getWidth());
+			res.addPoint(this.getHeight(), 0);
+		}else{
+			switch(img){
+			case "img/Hammerheadred.png":
+			case "img/Hammerheadblue.png":
+				res.addPoint(147 * scale, 175 * scale);
+				res.addPoint(598 * scale, 151 * scale);
+				res.addPoint(955 * scale , 335 * scale);
+				res.addPoint(955 * scale , 636 * scale);
+				res.addPoint(594 * scale , 811 * scale);
+				res.addPoint(147 * scale, 727 * scale);
+				break;		
+			case "img/vaisseau1.png":
+				res.addPoint(147 * scale, 175 * scale);
+				res.addPoint(598 * scale, 151 * scale);
+				res.addPoint(955 * scale , 335 * scale);
+				res.addPoint(955 * scale , 636 * scale);
+				res.addPoint(594 * scale , 811 * scale);
+				res.addPoint(147 * scale, 727 * scale);
+				break;
+			case "img/vaisseau2.png":
+				res.addPoint(162 * scale, 158 * scale);
+				res.addPoint(582 * scale, 182 * scale);
+				res.addPoint(1002 * scale , 280 * scale);
+				res.addPoint(1020 * scale , 528 * scale);
+				res.addPoint(968 * scale , 760 * scale);
+				res.addPoint(600 * scale, 864 * scale);
+				res.addPoint(110 * scale, 708 * scale);
+				res.addPoint(32 * scale, 520 * scale);
+				break;			
+			case "img/vaisseau3.png":
+				res.addPoint(202 * scale, 10 * scale);
+				res.addPoint(970 * scale, 218 * scale);
+				res.addPoint(1002 * scale , 366* scale);
+				res.addPoint(948 * scale , 624 * scale);
+				res.addPoint(692 * scale , 848 * scale);
+				res.addPoint(18 * scale, 522 * scale);
+				break;		
+			case "img/vaisseau4.png":
+				res.addPoint(16 * scale, 554 * scale);
+				res.addPoint(446 * scale, 46 * scale);
+				res.addPoint(962 * scale , 502 * scale);
+				res.addPoint(578 * scale , 974 * scale);
+				res.addPoint(90 * scale , 830 * scale);
+				res.addPoint(147 * scale, 727 * scale);
+				break;
+			case "img/vaisseau5.png":
+				res.addPoint(12 * scale, 472 * scale);
+				res.addPoint(350 * scale, 184 * scale);
+				res.addPoint(950 * scale , 332 * scale);
+				res.addPoint(1018 * scale , 506 * scale);
+				res.addPoint(972 * scale , 666 * scale);
+				res.addPoint(466 * scale, 804 * scale);
+				res.addPoint(94 * scale, 696 * scale);
+				break;
+			default:
+				res.addPoint(0, 0);
+				res.addPoint(0, this.getWidth());
+				res.addPoint(this.getHeight(), this.getWidth());
+				res.addPoint(this.getHeight(), 0);
+				break;
 			}
 		}
 		return res;
+	}
+	
+	public String getImageName(){
+		return this.image;
 	}
 
 }

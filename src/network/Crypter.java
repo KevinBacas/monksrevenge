@@ -9,65 +9,35 @@ public class Crypter {
 
 
 
-		private final static String cleSecrete = "monksdescailloux";
-		private final static String algo = "RC4";
-		private final static Key cle = new SecretKeySpec(cleSecrete.getBytes(), algo);
 
-
-
-		public static String encrypte(String texteEnClair)
-		{
-			Cipher cipher = null;
+		public static String encrypte(String password){
 			try
 			{
-				cipher = Cipher.getInstance(algo);
+				Key clef = new SecretKeySpec("monksdescailloux".getBytes("ISO-8859-2"),"Blowfish");
+				Cipher cipher=Cipher.getInstance("Blowfish");
+				cipher.init(Cipher.ENCRYPT_MODE,clef);
+				return new String(cipher.doFinal(password.getBytes()));
 			}
-			catch (NoSuchAlgorithmException e) {e.printStackTrace();}
-			catch (NoSuchPaddingException e) {e.printStackTrace();}
-
-			try
+			catch (Exception e)
 			{
-				cipher.init(Cipher.ENCRYPT_MODE, cle);
+				return null;
 			}
-			catch (InvalidKeyException e) {e.printStackTrace();}
-
-			byte[] texteCrypte = null;
-			try
-			{
-				texteCrypte = cipher.doFinal(texteEnClair.getBytes());
-			}
-			catch (IllegalBlockSizeException e) {e.printStackTrace();}
-			catch (BadPaddingException e) {e.printStackTrace();}
-
-			return new String(texteCrypte);
 		}
 
-		public static String decrypte(String texteCrypte)
-		{
-			Cipher cipher = null;
+	
+		public static String decrypte(String password){
 			try
 			{
-				cipher = Cipher.getInstance(algo);
+				Key clef = new SecretKeySpec("monksdescailloux".getBytes("ISO-8859-2"),"Blowfish");
+				Cipher cipher=Cipher.getInstance("Blowfish");
+				cipher.init(Cipher.DECRYPT_MODE,clef);
+				return new String(cipher.doFinal(password.getBytes()));
 			}
-			catch (NoSuchAlgorithmException e) {e.printStackTrace();}
-			catch (NoSuchPaddingException e) {e.printStackTrace();}
-
-			try
+			catch (Exception e)
 			{
-				cipher.init(Cipher.DECRYPT_MODE, cle);
+				System.out.println(e);
+				return null;
 			}
-			catch (InvalidKeyException e) {e.printStackTrace();}
-
-			byte[] texteEnClair = null;
-
-			try
-			{
-				texteEnClair = cipher.doFinal(texteCrypte.getBytes());
-			}
-			catch (IllegalBlockSizeException e)	{e.printStackTrace();}
-			catch (BadPaddingException e) {e.printStackTrace();}
-
-			return new String(texteEnClair);
 		}
 		
 }

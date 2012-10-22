@@ -1,14 +1,15 @@
 package states;
 
-import network.*;
-
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 
+import monksrevenge.FakeGameContainer;
 import monksrevenge.MonksRevengeGame;
+import network.Crypter;
 import objects.GamePackage;
 
 import org.newdawn.slick.Color;
@@ -25,15 +26,16 @@ import org.newdawn.slick.state.StateBasedGame;
 
 public class FinishedGameState extends BasicGameState implements ComponentListener{
 	
-	private long score=0;
+	private int score=0;
 	
-	private MouseOverArea upload;
 	private MouseOverArea back;
 	
 	private GameContainer container;
 	private StateBasedGame sbg;
 
 	private int stateId;
+
+	private Image fond;
 	
 	public FinishedGameState(int id){
 		this.stateId = id;
@@ -46,15 +48,11 @@ public class FinishedGameState extends BasicGameState implements ComponentListen
 		int posX = container.getWidth() / 3;
 		int posY = container.getHeight() / 3;
 		
-		Image _upload = GamePackage.getInstance().getResourceLoader().getImage("img/UploadScore.png");
-		Image _back = GamePackage.getInstance().getResourceLoader().getImage("img/ReturnMainMenu.png");
+		this.fond = GamePackage.getInstance().getResourceLoader().getImage("img/fond menu.jpg");
 		
-		this.upload = new MouseOverArea(container, _upload, (posX - _upload.getWidth()/2), posY*2);
-		this.upload.setNormalColor(new Color(0.7f,0.7f,0.7f,1f));
-		this.upload.setMouseOverColor(new Color(1f,1f,1f,1f));
-		this.upload.addListener(this);
-
-		this.back = new MouseOverArea(container, _back, (posX*2 - _back.getWidth()/2), posY*2);
+		Image _back = GamePackage.getInstance().getResourceLoader().getImage("img/main menu.png");
+		
+		this.back = new MouseOverArea(container, _back, (posX*2 - _back.getWidth()), posY*2);
 		this.back.setNormalColor(new Color(0.7f,0.7f,0.7f,1f));
 		this.back.setMouseOverColor(new Color(1f,1f,1f,1f));
 		
@@ -65,7 +63,8 @@ public class FinishedGameState extends BasicGameState implements ComponentListen
 
 	public void render(GameContainer container, StateBasedGame sgb, Graphics g)
 			throws SlickException {
-		this.upload.render(container, g);
+		float scale = (float)FakeGameContainer.getInstance().getHeight() / (float)this.fond.getHeight();
+		this.fond.draw((FakeGameContainer.getInstance().getWidth() /2) - ((this.fond.getWidth()*scale) / 2) , 0, scale);
 		this.back.render(container, g);
 		g.drawString("Score : " + this.score, container.getWidth() / 2, container.getHeight()/3);
 	}
@@ -76,9 +75,6 @@ public class FinishedGameState extends BasicGameState implements ComponentListen
 		Input input = this.container.getInput();
 		if(input.isMouseButtonDown(Input.MOUSE_LEFT_BUTTON)){
 			MouseOverArea source = null;
-			if(this.upload.isMouseOver()){
-				source = this.upload;
-			}
 			if(this.back.isMouseOver()){
 				source = this.back;
 			}
@@ -92,8 +88,8 @@ public class FinishedGameState extends BasicGameState implements ComponentListen
 	@Override
 	public void componentActivated(AbstractComponent source) {
 		if(source != null){
-			if (source.equals(this.upload)) {
-				try {
+			if (source.equals(this.back)) {
+try {
 					
 					
 				    String OS = System.getProperty("os.name").toUpperCase();
@@ -110,27 +106,41 @@ public class FinishedGameState extends BasicGameState implements ComponentListen
 			    	if (!file1.exists()){
 			    		file1.createNewFile();
 			    	}
-			    	FileInputStream in = new FileInputStream(file1);
-			    	FileOutputStream out = new FileOutputStream(file1);
-					out.write(Crypter.encrypte(this.score+"\n").getBytes());
-					out.flush();
-					out.close();
+			    	else{
+			    		file1.delete();
+			    		file1.createNewFile();
+			    	}
+			    	
+			    	FileReader fr = new FileReader(file1);
+			    	BufferedReader br = new BufferedReader(fr);
+			    	
+			    	String a;
+			    	
+			    	String score = ( ( a = br.readLine()) == null ? null : Crypter.decrypte( a ));
+			    	int i = (score == null ? 0 : Integer.valueOf(score));
+			    	
+			    	if ( i < this.score){ 
+			    		FileOutputStream out = new FileOutputStream(file1);
+				    	
+				    	out.write(Crypter.encrypte(String.valueOf(this.score)).getBytes());
+						out.flush();
+						out.close();
 
-
-
-					
-					
+			    	}
+			    	
+			    	
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 				
-				sbg.enterState(MonksRevengeGame.MAINMENUSTATE);
-			}
-			if (source.equals(this.back)) {
+				
 				try {
 					sbg.initStatesList(this.container);
+					
+					
+					
 				} catch (SlickException e) {
 					e.printStackTrace();
 				}
@@ -144,7 +154,7 @@ public class FinishedGameState extends BasicGameState implements ComponentListen
 		return this.stateId;
 	}
 	
-	public void setScore(long l){
+	public void setScore(int l){
 		this.score = l;
 	}
 

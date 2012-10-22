@@ -2,8 +2,10 @@ package states;
 
 import java.util.ArrayList;
 
+import monksrevenge.FakeGameContainer;
 import monksrevenge.MonksRevengeGame;
 import objects.Background;
+import objects.Bonus;
 import objects.Enemy;
 import objects.EnemyIA;
 import objects.EnemyIA.types;
@@ -24,6 +26,7 @@ public class Campain1State extends BasicGameState {
 	private Background bg;
 	private GamePackage gp;
 	private int spawnCounter=0;
+	private boolean onBoss=false;
 	
 	//Array des Enemy
 	private ArrayList<Enemy> enemyListArray = new ArrayList<Enemy>();
@@ -31,6 +34,7 @@ public class Campain1State extends BasicGameState {
 	private ArrayList<Integer> integerListArray = new ArrayList<Integer>();
 	
 	private Sound music;
+	private EnemyIA boss;
 	
 	public Campain1State(int id){
 		this.stateId = id;
@@ -39,36 +43,131 @@ public class Campain1State extends BasicGameState {
 	@Override
 	public void init(GameContainer container, StateBasedGame sbg)
 			throws SlickException {
+		this.spawnCounter = 0;
+		this.boss = null;
+		this.onBoss = false;
+		
+		this.enemyListArray = new ArrayList<Enemy>();
+		this.integerListArray = new ArrayList<Integer>();
 		
 		this.gp = GamePackage.getInstance();
 		this.bg = new Background(this.gp.getResourceLoader().getImage("img/bg.jpg"));
 		
 		//Init du GamePackage
-		this.gp.init();
+		this.gp.init(false);
 		
 		//On charge la musique
 		this.music = GamePackage.getInstance().getResourceLoader().getSound("sound/Niveau1.ogg");
 		
 		//Ajout du joueur
-		this.gp.addPlayer(new Player(50, MonksRevengeGame.appInstance.getHeight()/2, 250, 250, 100, 100, 300, 300, this.gp.getResourceLoader().getImage("img/Hammerheadred.png"), true));
+		this.gp.addGameObject(new Player(50, FakeGameContainer.getInstance().getHeight()/2, 250, 250, 100, 100, 300, 300, "img/Hammerheadred.png", true));
 
-		Image image = this.gp.getResourceLoader().getImage("img/vaisseau2.png");
+		String image = "img/vaisseau2.png";
 		Enemy temp = null;
 		
 		//On construit la partie
-		temp = new Enemy(MonksRevengeGame.appInstance.getWidth(), MonksRevengeGame.appInstance.getHeight(), (int)-(150+20), (int)-(150+20), 100, 105, 300, 300, image, false, 1, false, 1000);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight()*1/4, -200, 0, 100, 100, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1500);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight()/2, -200, 0, 100, 100, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1500);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight()*3/4, -200, 0, 100, 100, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1500);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight()*1/4, -200, 0, 100, 100, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 0);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight()/2, -200, 0, 100, 100, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 0);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight()*3/4, -200, 0, 100, 100, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 3000);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), 0, -200, 200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight(), -200, -200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), 0, -200, 200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight(), -200, -200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), 0, -200, 200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight(), -200, -200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), 0, -200, 200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight(), -200, -200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		temp = new Enemy(0, 0, 200, 200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		temp = new Enemy(0, FakeGameContainer.getInstance().getHeight(),200, -200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		//2eme part
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight()*1/4, -200, 0, 100, 100, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1500);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight()/2, -200, 0, 100, 100, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1500);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight()*3/4, -200, 0, 100, 100, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1500);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight()*1/4, -200, 0, 100, 100, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 0);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight()/2, -200, 0, 100, 100, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 0);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight()*3/4, -200, 0, 100, 100, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 3000);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), 0, -200, 200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight(), -200, -200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), 0, -200, 200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight(), -200, -200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), 0, -200, 200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight(), -200, -200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), 0, -200, 200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight(), -200, -200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		temp = new Enemy(0, 0, 200, 200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		temp = new Enemy(0, FakeGameContainer.getInstance().getHeight(),200, -200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		//3eme part
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight()*1/4, -200, 0, 100, 100, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1500);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight()/2, -200, 0, 100, 100, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1500);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight()*3/4, -200, 0, 100, 100, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1500);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight()*1/4, -200, 0, 100, 100, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 0);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight()/2, -200, 0, 100, 100, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 0);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight()*3/4, -200, 0, 100, 100, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 3000);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), 0, -200, 200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight(), -200, -200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), 0, -200, 200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight(), -200, -200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), 0, -200, 200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight(), -200, -200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), 0, -200, 200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		temp = new Enemy(FakeGameContainer.getInstance().getWidth(), FakeGameContainer.getInstance().getHeight(), -200, -200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		temp = new Enemy(0, 0, 200, 200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 1000);
+		temp = new Enemy(0, FakeGameContainer.getInstance().getHeight(),200, -200, 100, 105, 300, 300, image, false, 1, false, 1000);
+		this.addEnemyTimer(temp, 5000);
+		temp = new EnemyIA(types.VISEJOUEUR);
+		this.addEnemyTimer(temp, 10000);
+		temp = new EnemyIA(types.BOSS2);
 		this.addEnemyTimer(temp, 800);
-		temp = new Enemy(MonksRevengeGame.appInstance.getWidth(), 0, (int)-(150+20), (int)(150+20), 100, 105, 300, 300, image, false, 1, false, 1000);
-		this.addEnemyTimer(temp, 800);
-		temp = new Enemy(MonksRevengeGame.appInstance.getWidth(), MonksRevengeGame.appInstance.getHeight(), (int)-(150+20), (int)-(150+20), 100, 105, 300, 300, image, false, 1, false, 1000);
-		this.addEnemyTimer(temp, 800);
-		temp = new Enemy(MonksRevengeGame.appInstance.getWidth(), 0, (int)-(150+20), (int)(150+20), 100, 105, 300, 300, image, false, 1, false, 1000);
-		this.addEnemyTimer(temp, 800);
-		temp = new Enemy(MonksRevengeGame.appInstance.getWidth(), MonksRevengeGame.appInstance.getHeight(), (int)-(150+20), (int)-(150+20), 100, 105, 300, 300, image, false, 1, false, 1000);
-		this.addEnemyTimer(temp, 800);
-		temp = new Enemy(MonksRevengeGame.appInstance.getWidth(), 0, (int)-(150+20), (int)(150+20), 100, 105, 300, 300, image, false, 1, false, 1000);
-		this.addEnemyTimer(temp, 800);
-		
 	}
 
 	@Override
@@ -78,6 +177,16 @@ public class Campain1State extends BasicGameState {
 		this.gp.render(container, sbg, g);
 		g.drawString("Score : " + this.gp.getPlayerArray().get(0).getScore(), 9, 25);
 		g.drawString("Life : " + this.gp.getPlayerArray().get(0).getLife(), 9 , 40);
+		if(this.onBoss){
+			int numberOfLines = this.boss.getLife() * 5;
+			this.gp.getResourceLoader().getImage("img/cadre.png").draw(FakeGameContainer.getInstance().getWidth() /2, 50);
+			int i = 2;
+			Image line = this.gp.getResourceLoader().getImage("img/barre.png");
+			while(i <= numberOfLines){
+				line.draw(FakeGameContainer.getInstance().getWidth() /2 + 2 + i, 52);
+				i++;
+			}
+		}
 	}
 
 	@Override
@@ -88,18 +197,37 @@ public class Campain1State extends BasicGameState {
 		}
 		this.gp.setSpawnTimer(this.gp.getSpawnTimer() - delta);
 		if(this.gp.getSpawnTimer() < 0 && this.spawnCounter < this.enemyListArray.size()){
-			this.gp.addEnemy(this.enemyListArray.get(this.spawnCounter));
+			if(this.enemyListArray.get(this.spawnCounter) instanceof EnemyIA){
+				if(this.enemyListArray.get(this.spawnCounter).isBoss()){
+					this.onBoss = true;
+					this.boss = (EnemyIA) this.enemyListArray.get(this.spawnCounter);
+				}
+				this.gp.addGameObject((EnemyIA)this.enemyListArray.get(this.spawnCounter));
+				if(this.spawnCounter % 20 == 0){
+					this.gp.generateRandomBonus();
+				}
+			}else{
+				this.gp.addGameObject(new Enemy((Enemy)this.enemyListArray.get(this.spawnCounter)));
+			}
 			this.gp.setSpawnTimer(this.integerListArray.get(this.spawnCounter));
 			this.spawnCounter++;
 		}
 		//Update Background
 		this.bg.update(container, sbg, delta);
 		
+		//Update Player
+	   	 for(Player player : GamePackage.getInstance().getPlayerArray()){
+			 player.update(container, delta);
+			 for(Bonus bonus : GamePackage.getInstance().getBonusLifeArray()){
+				 player.collide(bonus);
+			 }
+		 }
+		
 		//Update GamePackage
-		this.gp.update(container, sbg, delta);
+		this.gp.update(delta);
 		
 		if(this.isGameFinished()){
-			((FinishedGameState) sbg.getState(MonksRevengeGame.FINISHEDGAMEMODSTATE)).setScore(GamePackage.getInstance().getPlayerArray().get(0).getScore());
+			((FinishedGameState) sbg.getState(MonksRevengeGame.FINISHEDGAMEMODSTATE)).setScore((int) GamePackage.getInstance().getPlayerArray().get(0).getScore());
 			this.music.stop();
 			sbg.enterState(MonksRevengeGame.FINISHEDGAMEMODSTATE);
 		}
@@ -111,7 +239,11 @@ public class Campain1State extends BasicGameState {
 	}
 	
 	private void addEnemyTimer(Enemy en, Integer timer){
-		this.enemyListArray.add(en);
+		if(en instanceof EnemyIA){
+			this.enemyListArray.add(new EnemyIA((EnemyIA)en));
+		}else{
+			this.enemyListArray.add(new Enemy(en));
+		}
 		this.integerListArray.add(timer);
 	}
 	

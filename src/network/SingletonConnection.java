@@ -96,7 +96,7 @@ public final class SingletonConnection {
  	public static void main(String[] args){
  		try {
  			SingletonConnection sc = SingletonConnection.getInstance();
- 			sc.writeHTTPRequest("pseudocompte=test&mot_de_passe=test&highscore=210000000");
+ 			sc.writeHTTPRequest("pseudocompte=azaghal&mot_de_passe=mangedescailloux&highscore=1");
  			System.out.println(sc.readHTTPRequest());
  			sc.destroy();
  		}

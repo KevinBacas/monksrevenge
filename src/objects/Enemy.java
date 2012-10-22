@@ -1,9 +1,5 @@
 ﻿package objects;
 
-import monksrevenge.MonksRevengeGame;
-
-import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 
 /** Classe représentant les pas beaux */
@@ -25,7 +21,7 @@ public class Enemy extends GameObject {
 	}
 
 	/** Constructeur avec arguments  */
-	public Enemy(int xPos, int yPos, int xSpeed, int ySpeed, int xAcceleration, int yAcceleration, int xSpeedMax, int ySpeedMax, Image image, boolean friendly, int life, boolean isBoss, int ShootTimer) {
+	public Enemy(int xPos, int yPos, int xSpeed, int ySpeed, int xAcceleration, int yAcceleration, int xSpeedMax, int ySpeedMax, String image, boolean friendly, int life, boolean isBoss, int ShootTimer) {
 		this.setXPos(xPos);
 		this.setYPos(yPos);
 		this.setXSpeed(xSpeed);
@@ -42,7 +38,7 @@ public class Enemy extends GameObject {
 		this.Giltimer = ShootTimer;
 		
 		//Hadoken
-		this.setShape(this.getShapeByImage(this.getImage()));
+		this.setShape(this.getShapeByImage(this.getImageName()));
 		this.getShape().setLocation(this.getXPos(), this.getYPos());
 	}
 
@@ -55,7 +51,7 @@ public class Enemy extends GameObject {
 				enemy.getYAcceleration(), 
 				enemy.getXSpeedMax(), 
 				enemy.getYSpeedMax(), 
-				enemy.getImage(), 
+				enemy.getImageName(), 
 				enemy.getFriendly(), 
 				enemy.getLife(), 
 				enemy.isBoss(), 
@@ -73,8 +69,8 @@ public class Enemy extends GameObject {
 	}
 
 	/** Implémentation de onCollision */
+	@Override
 	public void onCollision(GameObject o) throws SlickException {
-		
 		// Collision avec un Player
 		if (o instanceof Player){
 			((Player) o).setLife(((Player) o).getLife() - 1);
@@ -96,7 +92,7 @@ public class Enemy extends GameObject {
 	}
 
 	/** Implémentation de update  */
-	public void update(GameContainer container, int delta) throws SlickException {
+	public void update(int delta) throws SlickException {
 		this.updateLocation(delta);
 		this.updateShootTimer(delta);
 		if(this.getShootTimer() < 0){
@@ -111,14 +107,18 @@ public class Enemy extends GameObject {
 	}
 	
 	/** Fonction qui permet de tirer dans un angle */
-	public void fireToAngle(int angle){
-		int coefdir = (int)(Math.tan(angle));
+	public void fireToAngle(double angle){
+		angle = angle %360;
+		double xVect =  Math.cos(Math.toRadians(angle));
+		double yVect =  Math.sin(Math.toRadians(angle));
 		GamePackage gp = GamePackage.getInstance();
-		int xSpawn = (int) (this.getXPos() + (this.getImage().getWidth() * MonksRevengeGame.scale - (this.getImage().getWidth() * MonksRevengeGame.scale) / 4) / 2);
-		int ySpawn = (int) (this.getYPos() + (this.getImage().getHeight() * MonksRevengeGame.scale - (this.getImage().getHeight() * MonksRevengeGame.scale) / 4) /2 );
-		int yspeed = 250*coefdir > this.getYSpeedMax() ? this.getYSpeedMax() : 250*coefdir;
-		int xspeed = yspeed == this.getYSpeedMax() ? (int)yspeed/coefdir : 250;
-		gp.addBullet(new Bullet(xSpawn, ySpawn, xspeed, yspeed, 100,100,500,500, false, -1, 1));
+		int xSpawn =(int) (this.getXPos() + (this.getWidth() - this.getWidth() / 4) / 2);
+		int ySpawn =(int) (this.getYPos() + (this.getHeight() - this.getHeight() / 4) /2 );
+		double yspeed = 0;
+		double xspeed = 0;
+			yspeed = -175*yVect*2;
+			xspeed = -175*xVect*2;
+		gp.addGameObject(new Bullet(xSpawn, ySpawn, (int)xspeed, (int)yspeed, 100,100,300,300, false, -1, 1));
 	}
 
 	/** Getter du timer de tir */

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import monksrevenge.MonksRevengeGame;
+import monksrevenge.FakeGameContainer;
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -30,11 +30,11 @@ public class Background {
 			throws SlickException {
 		this.updateStarTimer(delta);
 		if(this.starTimer <= 0){
-			this.starArray.add(new Star((int)(Math.random() * MonksRevengeGame.appInstance.getScreenWidth()), (int)(Math.random() * MonksRevengeGame.appInstance.getScreenHeight())));
+			this.starArray.add(new Star((int)(Math.random() * FakeGameContainer.getInstance().getWidth()), (int)(Math.random() * FakeGameContainer.getInstance().getHeight())));
 			this.resetStarTimer();
 		}
 		for(int i=0; i < this.starArray.size(); i++){
-			this.starArray.get(i).update(container, delta);
+			this.starArray.get(i).update(delta);
 		}
 		//On supprime les Star
 		if(this.removeStar.size() > 0){

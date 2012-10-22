@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import objects.Bonus.bonusTypes;
+
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
@@ -17,13 +19,16 @@ public final class GamePackage {
 		private ArrayList<Enemy> enemyArray;
 		private ArrayList<Bonus> bonusArray;
 		private LinkedList<GameObject> removeArray;
+		private LinkedList<GameObject> addArray;
 		
-		private ResourceLoader resourceLoader = new ResourceLoader();
+		private ResourceLoader resourceLoader = null;
 		
 		//Timers
 		private int elapsedTime;
 		private int spawnTimer;
 		private int bonusTimer;
+		
+		private boolean online;
 		
 		
 		
@@ -52,15 +57,20 @@ public final class GamePackage {
 	     /* 
 	      * Méthode qui initialize les tableaux
 	      */
-	     public void init(){
+	     public void init(boolean online){
 	    	 this.playerArray = new ArrayList<Player>();
 	    	 this.bulletArray = new ArrayList<Bullet>();
 	    	 this.enemyArray = new ArrayList<Enemy>();
 	    	 this.bonusArray = new ArrayList<Bonus>();
 	    	 this.removeArray = new LinkedList<GameObject>();
+	    	 this.addArray = new LinkedList<GameObject>();
 	    	 this.elapsedTime = 0;
 	    	 this.spawnTimer = 0;
 	    	 this.bonusTimer = 0;
+	    	 this.online = online;
+	    	 if(!this.online){
+	    		 this.resourceLoader = new ResourceLoader();
+	    	 }
 	     }
 	     
 	     /*
@@ -86,27 +96,20 @@ public final class GamePackage {
 	    /*
 	     * Update de tout les éléments de tout les tableau
 	     */
-	 	public void update(GameContainer container, StateBasedGame sbg, int delta)
+	 	public void update(int delta)
 				throws SlickException {
 	 		
 	 		 this.addElapsedTime(delta);
 	 		
 	    	 for (Bonus bonus : this.bonusArray){
-	    		 bonus.update(container, delta);
-	    	 }
-	 		
-	    	 for(Player player : this.playerArray){
-	    		 player.update(container, delta);
-	    		 for(Bonus bonus : this.bonusArray){
-	    			 player.collide(bonus);
-	    		 }
+	    		 bonus.update(delta);
 	    	 }
 	    	 
 	    	 for(Enemy enemy : this.enemyArray){
 	    		 if(enemy instanceof EnemyIA){
-	    			 ((EnemyIA) enemy).update(container, delta);
+	    			 ((EnemyIA) enemy).update(delta);
 	    		 }else{
-	    			 enemy.update(container, delta);
+	    			 enemy.update(delta);
 	    		 }
 	    		 for(Player player : this.playerArray){
 	    			 enemy.collide(player);
@@ -114,7 +117,7 @@ public final class GamePackage {
 	    	 }
 	    	 
 	    	 for(Bullet bullet : this.bulletArray){
-	    		bullet.update(container, delta);
+	    		bullet.update(delta);
 	    		if(bullet.getFriendly()){
 		    		for(Enemy enemy : this.enemyArray){
 		    			bullet.collide(enemy);
@@ -140,6 +143,24 @@ public final class GamePackage {
 	    				 GamePackage.getInstance().removeBullet((Bullet) go);
 	    		 }
 	    		 this.removeArray.clear();
+	    	 }
+	    	 
+	    	 if(this.addArray.size()>0){
+	    		 Iterator<GameObject> it = this.addArray.iterator();
+	    		 while(it.hasNext()){
+	    			 GameObject go = it.next();
+	    			 if(go instanceof EnemyIA)
+	    				 GamePackage.getInstance().addEnemy((EnemyIA) go);
+	    			 else if(go instanceof Enemy)
+	    				 GamePackage.getInstance().addEnemy((Enemy) go);
+	    			 if(go instanceof Player)
+	    				 GamePackage.getInstance().addPlayer((Player) go);
+	    			 if(go instanceof Bonus)
+	    				 GamePackage.getInstance().addBonus((Bonus) go);
+	    			 if(go instanceof Bullet)
+	    				 GamePackage.getInstance().addBullet((Bullet) go);
+	    		 }
+	    		 this.addArray.clear();
 	    	 }
 	    	 
 	 	}
@@ -226,5 +247,25 @@ public final class GamePackage {
 		
 		public ResourceLoader getResourceLoader(){
 			return this.resourceLoader;
+		}
+		
+		public void addGameObject(GameObject go){
+			this.addArray.add(go);
+		}
+		
+		public void generateRandomBonus(){
+			Double d = Math.random();
+			if(d < 0.20){
+				this.addBonus(new Bonus(bonusTypes.ARMAGGEDON));
+			}
+			if(d >= 0.20 && d < 0.40){
+				this.addBonus(new Bonus(bonusTypes.SPEEDUP));
+			}
+			if(d >= 0.40 && d < 0.65){
+				this.addBonus(new Bonus(bonusTypes.POWERUP));
+			}
+			if(d >= 0.65){
+				this.addBonus(new Bonus(bonusTypes.LIFEUP));
+			}
 		}
 }

@@ -1,10 +1,10 @@
 package states;
 
 import monksrevenge.AI;
+import monksrevenge.FakeGameContainer;
 import monksrevenge.MonksRevengeGame;
 import objects.Background;
 import objects.Bonus;
-import objects.Bonus.bonusTypes;
 import objects.GamePackage;
 import objects.Player;
 
@@ -39,13 +39,13 @@ public class SurvivalModState extends BasicGameState{
 		this.level = 1;
 		
 		//Init du GamePackage
-		this.gp.init();
+		this.gp.init(false);
 		
 		//On charge la musique
 		this.music = GamePackage.getInstance().getResourceLoader().getSound("sound/Boss1.ogg");
 		
 		//Ajout du joueur
-		this.gp.addPlayer(new Player(50, MonksRevengeGame.appInstance.getHeight()/2, 250, 250, 100, 100, 300, 300, this.gp.getResourceLoader().getImage("img/Hammerheadred.png"), true));
+		this.gp.addGameObject(new Player(50, FakeGameContainer.getInstance().getHeight()/2, 250, 250, 100, 100, 300, 300, "img/Hammerheadblue.png", true));
 	}
 
 	public void render(GameContainer container, StateBasedGame sgb, Graphics g)
@@ -54,6 +54,7 @@ public class SurvivalModState extends BasicGameState{
 		this.gp.render(container, sgb, g);
 		g.drawString("Score : " + this.gp.getPlayerArray().get(0).getScore(), 9, 25);
 		g.drawString("Life : " + this.gp.getPlayerArray().get(0).getLife(), 9 , 40);
+		g.drawString("Level : " + this.level , 9 , 55);
 	}
 
 	@Override
@@ -65,13 +66,20 @@ public class SurvivalModState extends BasicGameState{
 		//Update Background
 		this.bg.update(container, sbg, delta);
 		
-		//Update GamePackage
-		this.gp.update(container, sbg, delta);
+		//Update Player
+	   	 for(Player player : GamePackage.getInstance().getPlayerArray()){
+			 player.update(container, delta);
+			 for(Bonus bonus : GamePackage.getInstance().getBonusLifeArray()){
+				 player.collide(bonus);
+			 }
+		 }
+	   	 
+		//Update GamePackage		
+		this.gp.update(delta);
 		this.gp.setSpawnTimer(this.gp.getSpawnTimer() - delta);
 		if (this.gp.getElapsedTime() / (this.level*5000) > 1.0){
 			this.level += 1;
-			this.gp.addBonus(new Bonus(bonusTypes.LIFEUP));
-			this.gp.addBonus(new Bonus(bonusTypes.POWERUP));
+			this.gp.generateRandomBonus();
 		}
 		if(this.gp.getSpawnTimer()<0){
 			this.spawnCounter++;
@@ -80,7 +88,7 @@ public class SurvivalModState extends BasicGameState{
 			this.gp.setSpawnTimer(5000/this.level);
 		}
 		if(this.gp.isPlayerDead(0)){
-			((FinishedGameState) sbg.getState(MonksRevengeGame.FINISHEDGAMEMODSTATE)).setScore(GamePackage.getInstance().getPlayerArray().get(0).getScore());
+			((FinishedGameState) sbg.getState(MonksRevengeGame.FINISHEDGAMEMODSTATE)).setScore((int) GamePackage.getInstance().getPlayerArray().get(0).getScore());
 			this.music.stop();
 			sbg.enterState(MonksRevengeGame.FINISHEDGAMEMODSTATE);
 		}

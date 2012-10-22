@@ -1,9 +1,10 @@
 ﻿package objects;
 
-import monksrevenge.MonksRevengeGame;
+import monksrevenge.FakeGameContainer;
+
+import objects.EnemyIA.types;
 
 import org.newdawn.slick.*;
-import org.newdawn.slick.geom.Circle;
 
 /** Classe représentant les balles */
 
@@ -31,13 +32,18 @@ public class Bullet extends GameObject {
 		this.setXSpeedMax(xSpeedMax);
 		this.setYSpeedMax(ySpeedMax);
 		
-		this.setImage(GamePackage.getInstance().getResourceLoader().getImage("img/bulletTrollface.png"));
+		if(friendly){
+			this.setImage("img/bulletblue.png");
+		}else{
+			this.setImage("img/bulletred.png");
+		}
 		
 		this.setFriendly(friendly);
 		this.setOwnerID(ownerID);
 		this.setDamage(damage);
 		
-		this.setShape(new Circle(this.getXPos(), this.getYPos(), this.getImage().getWidth()*MonksRevengeGame.scale/2));
+		this.setShape(this.getShapeByImage("img/bulletTrollface.png")); //TODO a changer apres un getter
+		this.getShape().setLocation(this.getXPos(), this.getYPos());
 	}
 	
 	public Bullet(Bullet bullet) {
@@ -60,10 +66,26 @@ public class Bullet extends GameObject {
 		// Collision avec un ennemi
 		if(o instanceof Enemy){
 			if (this.getFriendly()){
-				((Enemy) o).setLife(((Enemy) o).getLife()-this.damage);
+				((Enemy) o).setLife(((Enemy) o).getLife() - this.getDamage());
 				if(((Enemy) o).getLife() <= 0){
 					Player p = GamePackage.getInstance().getPlayerArray().get(this.ownerID);
-					p.setScore(p.getScore()+50);
+					long newScore = p.getScore();
+					if(o instanceof EnemyIA){
+						EnemyIA en = (EnemyIA)o;
+						if(en.isBoss()){
+							newScore += 50000;
+						}else{
+							if(en.getCurrentType().equals(types.KAMIKAZE))
+								newScore += Math.abs(en.getTime() * 1.5);
+							if(en.getCurrentType().equals(types.VISEJOUEUR))
+								newScore += Math.abs(en.getTime() * 0.5);
+							if(en.getCurrentType().equals(types.RAFALEVISEE))
+								newScore += Math.abs(en.getTime() * 0.7);
+						}
+					}else if(o instanceof Enemy){
+						newScore += 100;
+					}
+					p.setScore(newScore);
 					GamePackage.getInstance().addRemove((Enemy) o);
 				}
 				GamePackage.getInstance().addRemove(this);
@@ -84,7 +106,7 @@ public class Bullet extends GameObject {
 
 
 	@Override
-	public void update(GameContainer container, int delta) throws SlickException {
+	public void update(int delta) throws SlickException {
 		this.updateLocation(delta);
 		this.getShape().setLocation(this.getXPos(), this.getYPos());
 		//S'il sort de l'écran on le delete
@@ -108,5 +130,15 @@ public class Bullet extends GameObject {
 	public void setDamage(int damage) {
 		this.damage = damage;
 	}
+	
+	@Override
+	public int getHeight(){
+		return (int) (113*FakeGameContainer.getInstance().getScale());
+	}
 
+	@Override
+	public int getWidth(){
+		return (int) (101*FakeGameContainer.getInstance().getScale());
+	}
+	
 }

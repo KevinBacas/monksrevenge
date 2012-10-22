@@ -40,7 +40,7 @@ public class ResourceLoader {
 		
 		ArrayList<String> listfinale = new ArrayList<String>();
 		
-		File f = new File("src/img");
+		File f = new File("img");
 		String [] listefichiers;
 		int i; 
 		listefichiers = f.list();
@@ -56,7 +56,7 @@ public class ResourceLoader {
 		
 		ArrayList<String> listfinale = new ArrayList<String>();
 		
-		File f = new File("src/sound");
+		File f = new File("sound");
 		String [] listefichiers;
 		int i; 
 		listefichiers = f.list();

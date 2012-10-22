@@ -15,7 +15,7 @@ public class Star extends GameObject{
 		this.setYAcceleration(100);
 		this.setXSpeedMax(150);
 		this.setYSpeedMax(150);
-		this.setImage(GamePackage.getInstance().getResourceLoader().getImage("img/star.png"));
+		this.setImage("img/star.png");
 		this.setFriendly(true);
 	}
 
@@ -31,7 +31,7 @@ public class Star extends GameObject{
 	}
 
 	@Override
-	public void update(GameContainer container, int delta)
+	public void update(int delta)
 			throws SlickException {
 		this.updateLocation(delta);
 	}

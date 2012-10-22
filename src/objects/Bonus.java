@@ -1,6 +1,6 @@
 package objects;
 
-import monksrevenge.MonksRevengeGame;
+import monksrevenge.FakeGameContainer;
 
 import org.newdawn.slick.*;
 import org.newdawn.slick.geom.Circle;
@@ -9,7 +9,7 @@ import org.newdawn.slick.geom.Circle;
 public class Bonus extends GameObject {
 	
     public static enum bonusTypes {
-        LIFEUP, POWERUP, ARMAGGEDON, SHIELD, SPEEDUP
+        LIFEUP, POWERUP, ARMAGGEDON, SPEEDUP
     }
     
     private bonusTypes currentType = null;
@@ -25,36 +25,33 @@ public class Bonus extends GameObject {
 		
 		switch(t){
 			case LIFEUP:
-				this.setImage(GamePackage.getInstance().getResourceLoader().getImage("img/LifeUp.png"));
+				this.setImage("img/LifeUp.png");
 				break;
 			case POWERUP:
-				this.setImage(GamePackage.getInstance().getResourceLoader().getImage("img/PowerUp.png"));
+				this.setImage("img/PowerUp.png");
 				break;
 			case ARMAGGEDON:
-				this.setImage(GamePackage.getInstance().getResourceLoader().getImage("img/Armaggedon.png"));
-				break;
-			case SHIELD:
-				this.setImage(GamePackage.getInstance().getResourceLoader().getImage("img/Shield.png"));
+				this.setImage("img/Armaggedon.png");
 				break;
 			case SPEEDUP:
-				this.setImage(GamePackage.getInstance().getResourceLoader().getImage("img/SpeedUp.png"));
+				this.setImage("img/speedUp.png");
 				break;
 			default:
-				this.setImage(GamePackage.getInstance().getResourceLoader().getImage("img/LifeUp.png"));
+				this.setImage("img/LifeUp.png");
 				break;
 		}
 		
-		this.setXPos((int) (MonksRevengeGame.appInstance.getWidth()/2 + (MonksRevengeGame.appInstance.getWidth()/2 * Math.random())));
-		this.setYPos((int) (MonksRevengeGame.appInstance.getHeight() * Math.random() - (this.getImage().getHeight()*MonksRevengeGame.scale)));
+		this.setXPos((int) (FakeGameContainer.getInstance().getWidth()/2 + (FakeGameContainer.getInstance().getWidth()/2 * Math.random())));
+		this.setYPos((int) (this.getHeight()*2 + (FakeGameContainer.getInstance().getHeight() - (this.getHeight()*2)) * Math.random()));
 		
-		this.setShape(new Circle(this.getXPos(), this.getYPos(), this.getImage().getWidth()*MonksRevengeGame.scale/2));
+		this.setShape(new Circle(this.getXPos(), this.getYPos(), this.getWidth()/2));
 	}
 	
 	@Override
 	public void onCollision(GameObject o) throws SlickException {	}
 
 	@Override
-	public void update(GameContainer container, int delta)
+	public void update(int delta)
 			throws SlickException {
 		this.updateLocation(delta);
 		this.getShape().setLocation(this.getXPos(), this.getYPos());
@@ -69,6 +66,18 @@ public class Bonus extends GameObject {
 
 	public void setCurrentType(bonusTypes currentType) {
 		this.currentType = currentType;
+	}
+	
+	@Override
+	public int getHeight(){
+		return (int) (256*FakeGameContainer.getInstance().getScale());
+		
+	}
+	
+	@Override
+	public int getWidth(){
+		return (int) (256*FakeGameContainer.getInstance().getScale());
+		
 	}
 
 }

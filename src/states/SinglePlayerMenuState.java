@@ -1,12 +1,14 @@
 package states;
 
+import monksrevenge.FakeGameContainer;
 import monksrevenge.MonksRevengeGame;
+
+import objects.GamePackage;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
-import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.gui.AbstractComponent;
 import org.newdawn.slick.gui.ComponentListener;
@@ -17,6 +19,7 @@ import org.newdawn.slick.state.StateBasedGame;
 public class SinglePlayerMenuState extends BasicGameState implements ComponentListener{
 
 	private int stateId;
+	private GamePackage gp = GamePackage.getInstance();
 	
 	private MouseOverArea levelOne;
 	private MouseOverArea levelTwo;
@@ -26,6 +29,7 @@ public class SinglePlayerMenuState extends BasicGameState implements ComponentLi
 	
 	private StateBasedGame sbg;
 	private GameContainer container;
+	private Image fond;
 	
 	public SinglePlayerMenuState(int id){
 		this.stateId = id;
@@ -35,32 +39,35 @@ public class SinglePlayerMenuState extends BasicGameState implements ComponentLi
 	public void init(GameContainer container, StateBasedGame sbg)
 			throws SlickException {
 		
-		int posX = container.getWidth() / 4;
+		int posX = container.getWidth() / 3;
 		int posY = container.getHeight() / 3;
 		
 		Image temp = null;//Image de sauvegarde temporaire pour les instanciations
+		
+		this.fond = this.gp.getResourceLoader().getImage("img/fond menu.jpg");
+		
 		
 		back = new MouseOverArea(container, temp = new Image("img/back.png"), 9, 25);
 		back.setNormalColor(new Color(0.7f,0.7f,0.7f,1f));
 		back.setMouseOverColor(new Color(1f,1f,1f,1f));
 		back.addListener(this);
 		
-		levelOne = new MouseOverArea(container,temp = new Image("img/Singleplayer.png"), (posX - temp.getWidth()/2), posY);
+		levelOne = new MouseOverArea(container,temp = new Image("img/campagne1.png"), (posX - temp.getWidth()/2), posY);
 		levelOne.setNormalColor(new Color(0.7f,0.7f,0.7f,1f));
 		levelOne.setMouseOverColor(new Color(1f,1f,1f,1f));
 		levelOne.addListener(this);
 
-		levelTwo = new MouseOverArea(container,temp = new Image("img/Multiplayer.png"),(posX*2 - temp.getWidth()/2), posY);
+		levelTwo = new MouseOverArea(container,temp = new Image("img/campagne2.png"),(posX*2 - temp.getWidth()/2), posY);
 		levelTwo.setNormalColor(new Color(0.7f,0.7f,0.7f,1f));
 		levelTwo.setMouseOverColor(new Color(1f,1f,1f,1f));
 		levelTwo.addListener(this);
 		
-		levelThree = new MouseOverArea(container,temp = new Image("img/Settings.png"), (posX*3 - temp.getWidth()/2), posY);
+		levelThree = new MouseOverArea(container,temp = new Image("img/campagne3.png"), (posX - temp.getWidth()/2), posY*2);
 		levelThree.setNormalColor(new Color(0.7f,0.7f,0.7f,1f));
 		levelThree.setMouseOverColor(new Color(1f,1f,1f,1f));
 		levelThree.addListener(this);
 		
-		levelSurv = new MouseOverArea(container,temp = new Image("img/Settings.png"), (posX*2 - temp.getWidth()/2), posY*2);
+		levelSurv = new MouseOverArea(container,temp = new Image("img/survival.png"), (posX*2 - temp.getWidth()/2), posY*2);
 		levelSurv.setNormalColor(new Color(0.7f,0.7f,0.7f,1f));
 		levelSurv.setMouseOverColor(new Color(1f,1f,1f,1f));
 		levelSurv.addListener(this);
@@ -72,6 +79,8 @@ public class SinglePlayerMenuState extends BasicGameState implements ComponentLi
 
 	public void render(GameContainer container, StateBasedGame sgb, Graphics g)
 			throws SlickException {
+		float scale = (float)FakeGameContainer.getInstance().getHeight() / (float)this.fond.getHeight();
+		this.fond.draw((FakeGameContainer.getInstance().getWidth() /2) - ((this.fond.getWidth()*scale) / 2) , 0, scale);
 		back.render(container, g);
 		levelOne.render(container, g);
 		levelTwo.render(container, g);
@@ -100,10 +109,12 @@ public class SinglePlayerMenuState extends BasicGameState implements ComponentLi
 				this.sbg.enterState(MonksRevengeGame.CAMPAIN1STATE);
 			}
 			if (source.equals(levelTwo)) {
-				//In case of fire, Break the glass.
+				((MonksRevengeGame) sbg).initState(container, MonksRevengeGame.CAMPAIN2STATE);
+				this.sbg.enterState(MonksRevengeGame.CAMPAIN2STATE);
 			}
 			if(source.equals(levelThree)){
-				//In case of fire, Break the glass.
+				((MonksRevengeGame) sbg).initState(container, MonksRevengeGame.CAMPAIN3STATE);
+				this.sbg.enterState(MonksRevengeGame.CAMPAIN3STATE);
 			}
 			if(source.equals(levelSurv)){
 				((MonksRevengeGame) sbg).initState(container, MonksRevengeGame.SURVIVALMODSTATE);
